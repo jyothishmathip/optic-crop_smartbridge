@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}OptiCrop — Find Your Crop{% endblock %}
+{% block content %}
+
+<section class="predict-hero">
+  <div class="wrap">
+    <span class="eyebrow mono">Crop recommender</span>
+    <h1>Find your crop</h1>
+    <p>Enter the soil and climate conditions for your field. The model checks them against
+      22 crop profiles and returns the closest match.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="form-panel">
+    <form action="{{ url_for('predict') }}" method="post">
+      <div class="field-grid">
+        <div class="field">
+          <label for="nitrogen">Nitrogen (N)</label>
+          <input type="text" id="nitrogen" name="nitrogen" placeholder="e.g. 90" required>
+          <span class="hint">kg/ha</span>
+        </div>
+        <div class="field">
+          <label for="phosphorous">Phosphorous (P)</label>
+          <input type="text" id="phosphorous" name="phosphorous" placeholder="e.g. 42" required>
+          <span class="hint">kg/ha</span>
+        </div>
+        <div class="field">
+          <label for="potassium">Potassium (K)</label>
+          <input type="text" id="potassium" name="potassium" placeholder="e.g. 43" required>
+          <span class="hint">kg/ha</span>
+        </div>
+        <div class="field">
+          <label for="temperature">Temperature</label>
+          <input type="text" id="temperature" name="temperature" placeholder="e.g. 25.6" required>
+          <span class="hint">°C</span>
+        </div>
+        <div class="field">
+          <label for="humidity">Humidity</label>
+          <input type="text" id="humidity" name="humidity" placeholder="e.g. 82" required>
+          <span class="hint">%</span>
+        </div>
+        <div class="field">
+          <label for="ph">pH</label>
+          <input type="text" id="ph" name="ph" placeholder="e.g. 6.5" required>
+          <span class="hint">soil pH</span>
+        </div>
+        <div class="field">
+          <label for="rainfall">Rainfall</label>
+          <input type="text" id="rainfall" name="rainfall" placeholder="e.g. 200" required>
+          <span class="hint">mm</span>
+        </div>
+      </div>
+
+      <div class="predict-submit">
+        <button type="submit" class="btn">Predict crop</button>
+        <span style="font-size:.8rem; color:var(--ink-soft);">All fields required · numeric values only</span>
+      </div>
+    </form>
+
+    {% if prediction_text %}
+    <div class="result-banner">
+      <span class="label">Result</span>
+      <span class="crop">{{ prediction_text }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap"></div>
+</section>
+
+{% endblock %}

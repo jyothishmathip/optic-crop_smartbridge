@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}OptiCrop — Home{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-inner">
+      <div>
+        <span class="eyebrow mono">Agricultural Optimisation Engine</span>
+        <h1>Read the soil.<br><em>Recommend the crop.</em></h1>
+        <p class="lede">
+          OptiCrop turns seven soil and climate readings — nitrogen, phosphorous, potassium,
+          temperature, humidity, pH and rainfall — into a data-driven crop recommendation,
+          so farmers spend inputs on the crop the land is already suited to.
+        </p>
+        <div style="display:flex; gap:.9rem;">
+          <a href="{{ url_for('findyourcrop') }}" class="btn">Find your crop →</a>
+          <a href="{{ url_for('about') }}" class="btn ghost">How it works</a>
+        </div>
+        <div class="chips">
+          <span class="chip">N · Nitrogen</span>
+          <span class="chip">P · Phosphorous</span>
+          <span class="chip">K · Potassium</span>
+          <span class="chip">pH</span>
+          <span class="chip">Rainfall</span>
+        </div>
+      </div>
+
+      <div class="soil-profile">
+        <div class="layer" style="top:0; height:22%; background:#e8c96b;">
+          <span class="tag">TOPSOIL</span><span class="val">humidity 82%</span>
+        </div>
+        <div class="layer" style="top:22%; height:22%; background:#cdae5e;">
+          <span class="tag">N</span><span class="val">90 kg/ha</span>
+        </div>
+        <div class="layer" style="top:44%; height:18%; background:#b08f4e;">
+          <span class="tag">P</span><span class="val">42 kg/ha</span>
+        </div>
+        <div class="layer" style="top:62%; height:18%; background:#8f7141;">
+          <span class="tag">K</span><span class="val">43 kg/ha</span>
+        </div>
+        <div class="layer" style="top:80%; height:20%; background:#5c4a30; color:#f6f1e6;">
+          <span class="tag" style="background:rgba(246,241,230,.16); color:#f6f1e6;">pH</span><span class="val">6.5</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">The problem</span>
+    <h2 style="max-width:46ch; margin-top:.4rem;">Farmers pick crops on habit — the land often disagrees.</h2>
+    <div class="grid-3" style="margin-top:2rem;">
+      <div class="card">
+        <span class="num">01</span>
+        <h3>Mismatched inputs</h3>
+        <p>Nutrient and water needs vary widely by crop; the wrong pairing wastes fertiliser and yield potential.</p>
+      </div>
+      <div class="card">
+        <span class="num">02</span>
+        <h3>Shifting conditions</h3>
+        <p>Temperature, rainfall and humidity change season to season, but crop choice rarely adapts alongside them.</p>
+      </div>
+      <div class="card">
+        <span class="num">03</span>
+        <h3>Limited feedback</h3>
+        <p>Without a data-driven check, poor crop selection is only discovered after a failed or reduced harvest.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section tight">
+  <div class="wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:center;">
+    <div>
+      <span class="eyebrow">How OptiCrop helps</span>
+      <h2 style="margin-top:.4rem;">A trained model reads your field's numbers.</h2>
+      <p style="color:var(--ink-soft); line-height:1.65; max-width:48ch;">
+        Enter seven soil and climate values and a Logistic Regression model — trained on
+        agricultural production data across 20+ crops — returns the crop best suited to
+        those exact conditions.
+      </p>
+      <a href="{{ url_for('findyourcrop') }}" class="btn" style="margin-top:1rem; background:var(--forest); color:var(--parchment);">Try the recommender →</a>
+    </div>
+    <div class="card" style="background:var(--parchment-2);">
+      <p style="font-family:'IBM Plex Mono', monospace; font-size:.82rem; color:var(--ink-soft); line-height:1.9;">
+        input&nbsp; &rarr; nitrogen, phosphorous, potassium,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temperature, humidity, ph, rainfall<br>
+        model &rarr; logistic regression (scikit-learn)<br>
+        output &rarr; recommended crop label
+      </p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

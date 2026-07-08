@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}OptiCrop{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div class="topnav">
+    <div class="brand"><span class="dot"></span>opti&nbsp;/&nbsp;crop</div>
+    <div class="nav-links">
+      <a href="{{ url_for('home') }}" class="{{ 'active' if active=='home' else '' }}">Home</a>
+      <a href="{{ url_for('about') }}" class="{{ 'active' if active=='about' else '' }}">About</a>
+      <a href="{{ url_for('findyourcrop') }}" class="{{ 'active' if active=='find' else '' }}">Find Your Crop</a>
+    </div>
+  </div>
+
+  {% block content %}{% endblock %}
+
+  <footer>
+    <div class="wrap">
+      OptiCrop &mdash; Smart Agricultural Production Optimization Engine. Built with NumPy, Pandas, scikit-learn &amp; Flask.
+    </div>
+  </footer>
+
+</body>
+</html>

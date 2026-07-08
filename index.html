@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OptiCrop — Smart Agricultural Production Optimization Engine</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --soil: #241f18;
+  --soil-2: #362d20;
+  --forest: #1f3a2c;
+  --forest-2: #2a4d3a;
+  --wheat: #c9a227;
+  --wheat-light: #e8c96b;
+  --sage: #7c9473;
+  --parchment: #f6f1e6;
+  --parchment-2: #ece3cf;
+  --card: #fffdf8;
+  --ink: #241f18;
+  --ink-soft: #5c5344;
+  --line: #ddd1b3;
+  --radius: 4px;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Inter', sans-serif;
+  background:var(--parchment);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  margin:0 0 .5rem 0;
+  letter-spacing:-0.01em;
+  color:var(--soil);
+}
+
+.mono{
+  font-family:'IBM Plex Mono', monospace;
+}
+
+a{color:inherit;}
+
+/* ---------- Nav ---------- */
+.topnav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--forest);
+  padding:0 2.5rem;
+  height:64px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 1px 0 rgba(0,0,0,.15);
+}
+.brand{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:1.15rem;
+  color:var(--parchment);
+  letter-spacing:.02em;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+.brand .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--wheat);
+  display:inline-block;
+}
+.nav-links{display:flex; gap:.25rem;}
+.nav-links a{
+  color:rgba(246,241,230,.78);
+  text-decoration:none;
+  font-size:.92rem;
+  font-weight:500;
+  padding:.5rem 1rem;
+  border-radius:3px;
+  transition:color .15s ease, background .15s ease;
+}
+.nav-links a:hover{color:var(--parchment); background:rgba(255,255,255,.06);}
+.nav-links a.active{color:var(--soil); background:var(--wheat);}
+
+/* ---------- Layout helpers ---------- */
+.wrap{max-width:1080px; margin:0 auto; padding:0 2.5rem;}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.72rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--sage);
+  font-weight:600;
+}
+
+/* ---------- Hero (home) ---------- */
+.hero{
+  background:linear-gradient(180deg, var(--forest) 0%, var(--forest-2) 100%);
+  color:var(--parchment);
+  padding:5rem 0 0 0;
+  overflow:hidden;
+  position:relative;
+}
+.hero-inner{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:2.5rem;
+  align-items:center;
+}
+.hero h1{
+  color:var(--parchment);
+  font-size:clamp(2.1rem, 3.6vw, 3.1rem);
+  line-height:1.06;
+  margin:.6rem 0 1.1rem 0;
+}
+.hero h1 em{
+  font-style:italic;
+  color:var(--wheat-light);
+}
+.hero p.lede{
+  color:rgba(246,241,230,.82);
+  font-size:1.05rem;
+  line-height:1.6;
+  max-width:44ch;
+  margin-bottom:1.8rem;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  background:var(--wheat);
+  color:var(--soil);
+  font-weight:600;
+  font-size:.92rem;
+  padding:.85rem 1.5rem;
+  border-radius:3px;
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+  transition:transform .15s ease, background .15s ease;
+}
+.btn:hover{background:var(--wheat-light); transform:translateY(-1px);}
+.btn.ghost{
+  background:transparent;
+  color:var(--parchment);
+  border:1px solid rgba(246,241,230,.35);
+}
+.btn.ghost:hover{background:rgba(255,255,255,.08);}
+
+/* soil profile signature graphic */
+.soil-profile{
+  position:relative;
+  height:340px;
+  border-radius:6px;
+  overflow:hidden;
+  border:1px solid rgba(246,241,230,.15);
+}
+.layer{
+  position:absolute; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 1.1rem;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.72rem;
+  color:rgba(36,31,24,.75);
+}
+.layer .tag{
+  background:rgba(36,31,24,.12);
+  padding:.2rem .5rem;
+  border-radius:2px;
+  font-weight:600;
+}
+.layer .val{font-weight:600;}
+
+.chips{
+  display:flex; flex-wrap:wrap; gap:.5rem;
+  margin-top:1.6rem;
+}
+.chip{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.74rem;
+  color:rgba(246,241,230,.9);
+  border:1px solid rgba(246,241,230,.25);
+  padding:.35rem .65rem;
+  border-radius:20px;
+}
+
+/* ---------- sections on parchment ---------- */
+.section{padding:4.5rem 0;}
+.section.tight{padding:3rem 0;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:1.6rem;
+}
+.card h3{font-size:1.05rem; margin-bottom:.4rem;}
+.card p{color:var(--ink-soft); font-size:.93rem; line-height:1.55; margin:0;}
+.card .num{
+  font-family:'IBM Plex Mono', monospace;
+  color:var(--wheat);
+  font-weight:600;
+  font-size:.8rem;
+  margin-bottom:.6rem;
+  display:block;
+}
+
+.divider{height:1px; background:var(--line); margin:0;}
+
+/* ---------- About page ---------- */
+.about-hero{
+  background:var(--parchment-2);
+  padding:3.5rem 0;
+  border-bottom:1px solid var(--line);
+}
+.about-hero .eyebrow{margin-bottom:.4rem;}
+.about-hero p{
+  color:var(--ink-soft);
+  font-size:1.02rem;
+  line-height:1.7;
+  max-width:70ch;
+}
+.stat-row{
+  display:flex; gap:2.5rem; margin-top:2rem; flex-wrap:wrap;
+}
+.stat .num{
+  font-family:'Fraunces', serif;
+  font-size:2.1rem;
+  color:var(--forest);
+  font-weight:600;
+  display:block;
+}
+.stat .label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--ink-soft);
+}
+.scenario{
+  border-left:3px solid var(--wheat);
+  padding:.2rem 0 .2rem 1.2rem;
+  margin-bottom:1.6rem;
+}
+.scenario h3{font-size:1rem; margin-bottom:.35rem;}
+.scenario p{color:var(--ink-soft); font-size:.93rem; line-height:1.6; margin:0;}
+.stack-list{
+  display:flex; flex-wrap:wrap; gap:.5rem;
+}
+.stack-pill{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.78rem;
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  padding:.4rem .75rem;
+  border-radius:20px;
+  color:var(--ink);
+}
+
+/* ---------- Find your crop (form) ---------- */
+.predict-hero{
+  background:var(--soil);
+  color:var(--parchment);
+  padding:3rem 0 2.5rem 0;
+}
+.predict-hero .eyebrow{color:var(--wheat-light);}
+.predict-hero h1{color:var(--parchment); font-size:2rem; margin-top:.4rem;}
+.predict-hero p{color:rgba(246,241,230,.75); max-width:56ch; line-height:1.6;}
+
+.form-panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:6px;
+  margin-top:-2.2rem;
+  padding:2rem;
+  box-shadow:0 10px 30px rgba(36,31,24,.08);
+}
+form .field-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:1.1rem 1.2rem;
+}
+.field{display:flex; flex-direction:column; gap:.4rem;}
+.field label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--ink-soft);
+}
+.field input{
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:.65rem .75rem;
+  font-family:'Inter', sans-serif;
+  font-size:.95rem;
+  background:var(--parchment);
+  color:var(--ink);
+  outline:none;
+  transition:border-color .15s ease, background .15s ease;
+}
+.field input:focus{border-color:var(--forest); background:#fff;}
+.field .hint{font-size:.72rem; color:#9a9080;}
+
+.predict-submit{
+  margin-top:1.6rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+}
+
+.result-banner{
+  margin-top:1.6rem;
+  background:var(--forest);
+  color:var(--parchment);
+  border-radius:4px;
+  padding:1.1rem 1.4rem;
+  display:flex;
+  align-items:baseline;
+  gap:.6rem;
+}
+.result-banner .label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--wheat-light);
+}
+.result-banner .crop{
+  font-family:'Fraunces', serif;
+  font-size:1.5rem;
+  font-weight:600;
+  text-transform:capitalize;
+}
+
+/* ---------- footer ---------- */
+footer{
+  padding:2.2rem 0;
+  border-top:1px solid var(--line);
+  color:var(--ink-soft);
+  font-size:.82rem;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 860px){
+  .hero-inner{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr;}
+  form .field-grid{grid-template-columns:repeat(2,1fr);}
+  .topnav{padding:0 1.2rem;}
+  .wrap{padding:0 1.2rem;}
+}
+@media (max-width: 520px){
+  form .field-grid{grid-template-columns:1fr;}
+  .stat-row{gap:1.4rem;}
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;}
+}
+
+
+.page{display:none;}
+.page.active{display:block;}
+button.nav-link{
+  font-family:inherit;
+  border:none;
+  background:none;
+  cursor:pointer;
+  margin:0;
+}
+.nav-links button.nav-link{
+  color:rgba(246,241,230,.78);
+  font-size:.92rem;
+  font-weight:500;
+  padding:.5rem 1rem;
+  border-radius:3px;
+  transition:color .15s ease, background .15s ease;
+}
+.nav-links button.nav-link:hover{color:var(--parchment); background:rgba(255,255,255,.06);}
+.nav-links button.nav-link.active{color:var(--soil); background:var(--wheat);}
+button.btn.nav-link{font-size:.92rem;}
+
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="brand"><span class="dot"></span>opti&nbsp;/&nbsp;crop</div>
+  <div class="nav-links">
+    <button type="button" class="nav-link" data-page="home">Home</button>
+    <button type="button" class="nav-link" data-page="about">About</button>
+    <button type="button" class="nav-link" data-page="find">Find Your Crop</button>
+  </div>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="page" id="page-home">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-inner">
+        <div>
+          <span class="eyebrow mono">Agricultural Optimisation Engine</span>
+          <h1>Read the soil.<br><em>Recommend the crop.</em></h1>
+          <p class="lede">
+            OptiCrop turns seven soil and climate readings — nitrogen, phosphorous, potassium,
+            temperature, humidity, pH and rainfall — into a data-driven crop recommendation,
+            so farmers spend inputs on the crop the land is already suited to.
+          </p>
+          <div style="display:flex; gap:.9rem;">
+            <button type="button" class="btn nav-link" data-page="find">Find your crop →</button>
+            <button type="button" class="btn ghost nav-link" data-page="about">How it works</button>
+          </div>
+          <div class="chips">
+            <span class="chip">N · Nitrogen</span>
+            <span class="chip">P · Phosphorous</span>
+            <span class="chip">K · Potassium</span>
+            <span class="chip">pH</span>
+            <span class="chip">Rainfall</span>
+          </div>
+        </div>
+
+        <div class="soil-profile">
+          <div class="layer" style="top:0; height:22%; background:#e8c96b;">
+            <span class="tag">TOPSOIL</span><span class="val">humidity 82%</span>
+          </div>
+          <div class="layer" style="top:22%; height:22%; background:#cdae5e;">
+            <span class="tag">N</span><span class="val">90 kg/ha</span>
+          </div>
+          <div class="layer" style="top:44%; height:18%; background:#b08f4e;">
+            <span class="tag">P</span><span class="val">42 kg/ha</span>
+          </div>
+          <div class="layer" style="top:62%; height:18%; background:#8f7141;">
+            <span class="tag">K</span><span class="val">43 kg/ha</span>
+          </div>
+          <div class="layer" style="top:80%; height:20%; background:#5c4a30; color:#f6f1e6;">
+            <span class="tag" style="background:rgba(246,241,230,.16); color:#f6f1e6;">pH</span><span class="val">6.5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <span class="eyebrow">The problem</span>
+      <h2 style="max-width:46ch; margin-top:.4rem;">Farmers pick crops on habit — the land often disagrees.</h2>
+      <div class="grid-3" style="margin-top:2rem;">
+        <div class="card">
+          <span class="num">01</span>
+          <h3>Mismatched inputs</h3>
+          <p>Nutrient and water needs vary widely by crop; the wrong pairing wastes fertiliser and yield potential.</p>
+        </div>
+        <div class="card">
+          <span class="num">02</span>
+          <h3>Shifting conditions</h3>
+          <p>Temperature, rainfall and humidity change season to season, but crop choice rarely adapts alongside them.</p>
+        </div>
+        <div class="card">
+          <span class="num">03</span>
+          <h3>Limited feedback</h3>
+          <p>Without a data-driven check, poor crop selection is only discovered after a failed or reduced harvest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section tight">
+    <div class="wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:center;">
+      <div>
+        <span class="eyebrow">How OptiCrop helps</span>
+        <h2 style="margin-top:.4rem;">A trained model reads your field's numbers.</h2>
+        <p style="color:var(--ink-soft); line-height:1.65; max-width:48ch;">
+          Enter seven soil and climate values and a Logistic Regression model — trained on
+          agricultural production data across 22 crops — returns the crop best suited to
+          those exact conditions.
+        </p>
+        <button type="button" class="btn nav-link" data-page="find" style="margin-top:1rem; background:var(--forest); color:var(--parchment);">Try the recommender →</button>
+      </div>
+      <div class="card" style="background:var(--parchment-2);">
+        <p style="font-family:'IBM Plex Mono', monospace; font-size:.82rem; color:var(--ink-soft); line-height:1.9;">
+          input&nbsp; &rarr; nitrogen, phosphorous, potassium,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temperature, humidity, ph, rainfall<br>
+          model &rarr; logistic regression (in-browser)<br>
+          output &rarr; recommended crop label
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ ABOUT ============ -->
+<div class="page" id="page-about">
+  <section class="about-hero">
+    <div class="wrap">
+      <span class="eyebrow">About the project</span>
+      <h1 style="font-size:2.1rem; margin-top:.4rem;">Smart Agricultural Production Optimization Engine</h1>
+      <p>
+        OptiCrop develops an advanced software system that uses data-driven insights to
+        optimize agricultural production for different crops. By integrating key environmental
+        factors — Nitrogen (N), Phosphorous (P), Potassium (K) levels, soil temperature,
+        humidity, pH, rainfall and crop types — OptiCrop provides intelligent recommendations
+        to farmers for maximizing yields and resource efficiency.
+      </p>
+      <p>
+        The insights generated by OptiCrop can also be used by agricultural researchers,
+        policymakers and stakeholders to advance the understanding of crop-environment
+        interactions and inform evidence-based agricultural strategies — improving resource
+        efficiency and contributing to sustainable farming practices.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat"><span class="num">22+</span><span class="label">Crop types</span></div>
+        <div class="stat"><span class="num">7</span><span class="label">Input parameters</span></div>
+        <div class="stat"><span class="num">~98%</span><span class="label">Model accuracy</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <span class="eyebrow">Use cases</span>
+      <h2 style="margin-top:.4rem;">Three ways OptiCrop gets used</h2>
+
+      <div style="margin-top:2rem; max-width:70ch;">
+        <div class="scenario">
+          <h3>Smart crop recommendation for farmers</h3>
+          <p>A farmer enters soil and environmental details — N, P, K, temperature, humidity, pH and
+          rainfall. The system analyzes the data and recommends the most suitable crop for maximum
+          yield and better farming efficiency.</p>
+        </div>
+        <div class="scenario">
+          <h3>Crop suitability and environmental assessment</h3>
+          <p>A user checks whether current soil and climate conditions suit a particular crop. The
+          application evaluates the inputs and reports on crop compatibility, environmental
+          suitability and productivity potential.</p>
+        </div>
+        <div class="scenario">
+          <h3>Agricultural research and policy planning</h3>
+          <p>A researcher or policymaker analyzes crop-environment relationships and identifies
+          patterns in agricultural production, supporting data-driven, sustainable farming
+          strategies and resource optimization.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section tight">
+    <div class="wrap">
+      <span class="eyebrow">Under the hood</span>
+      <h2 style="margin-top:.4rem;">Built with</h2>
+      <div class="stack-list" style="margin-top:1.2rem;">
+        <span class="stack-pill">NumPy</span>
+        <span class="stack-pill">Pandas</span>
+        <span class="stack-pill">scikit-learn</span>
+        <span class="stack-pill">Matplotlib</span>
+        <span class="stack-pill">Seaborn</span>
+        <span class="stack-pill">Flask</span>
+        <span class="stack-pill">K-Means Clustering</span>
+        <span class="stack-pill">Logistic Regression</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ FIND YOUR CROP ============ -->
+<div class="page" id="page-find">
+  <section class="predict-hero">
+    <div class="wrap">
+      <span class="eyebrow mono">Crop recommender</span>
+      <h1>Find your crop</h1>
+      <p>Enter the soil and climate conditions for your field. The model checks them against
+        22 crop profiles and returns the closest match.</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="form-panel">
+      <form id="predict-form">
+        <div class="field-grid">
+          <div class="field">
+            <label for="nitrogen">Nitrogen (N)</label>
+            <input type="number" step="any" id="nitrogen" name="nitrogen" placeholder="e.g. 90" required>
+            <span class="hint">kg/ha</span>
+          </div>
+          <div class="field">
+            <label for="phosphorous">Phosphorous (P)</label>
+            <input type="number" step="any" id="phosphorous" name="phosphorous" placeholder="e.g. 42" required>
+            <span class="hint">kg/ha</span>
+          </div>
+          <div class="field">
+            <label for="potassium">Potassium (K)</label>
+            <input type="number" step="any" id="potassium" name="potassium" placeholder="e.g. 43" required>
+            <span class="hint">kg/ha</span>
+          </div>
+          <div class="field">
+            <label for="temperature">Temperature</label>
+            <input type="number" step="any" id="temperature" name="temperature" placeholder="e.g. 25.6" required>
+            <span class="hint">°C</span>
+          </div>
+          <div class="field">
+            <label for="humidity">Humidity</label>
+            <input type="number" step="any" id="humidity" name="humidity" placeholder="e.g. 82" required>
+            <span class="hint">%</span>
+          </div>
+          <div class="field">
+            <label for="ph">pH</label>
+            <input type="number" step="any" id="ph" name="ph" placeholder="e.g. 6.5" required>
+            <span class="hint">soil pH</span>
+          </div>
+          <div class="field">
+            <label for="rainfall">Rainfall</label>
+            <input type="number" step="any" id="rainfall" name="rainfall" placeholder="e.g. 200" required>
+            <span class="hint">mm</span>
+          </div>
+        </div>
+
+        <div class="predict-submit">
+          <button type="submit" class="btn">Predict crop</button>
+          <span style="font-size:.8rem; color:var(--ink-soft);">All fields required · numeric values only</span>
+        </div>
+      </form>
+
+      <div class="result-banner" id="result-banner" style="display:none;">
+        <span class="label">Result</span>
+        <span class="crop" id="result-crop"></span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section"><div class="wrap"></div></section>
+</div>
+
+<footer>
+  <div class="wrap">
+    OptiCrop &mdash; Smart Agricultural Production Optimization Engine. Built with NumPy, Pandas, scikit-learn &amp; Flask.
+  </div>
+</footer>
+
+<script>
+// ---- Trained Logistic Regression model (exported from scikit-learn) ----
+const MODEL = {"classes": ["apple", "banana", "blackgram", "chickpea", "coconut", "coffee", "cotton", "grapes", "jute", "kidneybeans", "lentil", "maize", "mango", "mothbeans", "mungbean", "muskmelon", "orange", "papaya", "pigeonpeas", "pomegranate", "rice", "watermelon"], "coef": [[-0.3096339435758502, 0.09927205423088825, 0.7656845665961237, -0.26716174002462656, -0.04626227289678794, -0.2880042759669523, 0.10026192693786364], [0.20111721886966652, 0.2760887777628836, 0.44080739030676636, -0.3188208839243717, -0.2449940096050033, -0.2583756876311418, 0.034659906145829596], [-0.033807903815640125, 0.7187369686819092, -0.5960634693905813, 0.45679298843724453, 0.2939013002953754, 0.4578600545830743, -0.05303501244464238], [-0.06607954702034931, 0.2313212123115161, 0.6763220080017024, 0.09621122673158755, -0.4343583231420422, 0.07894617403548652, 0.0777063003046813], [-0.3016889279561396, -0.4373531854925549, -0.18765776521663444, 0.1749508637595059, 0.29415438094291013, -0.4173005014945389, 0.2598519554060776], [0.40142383902507506, -0.44996007858919557, -0.6559962311087576, 0.7050902728544363, -0.2618405297640886, 0.4675595958167637, 0.22521177618392946], [0.7459391801579308, -0.27620082596282947, -0.7461920922027925, -0.167128440558046, 0.306594923618075, 0.23322290233333254, -4.085759726579402e-05], [-0.30884128476081374, 0.22320302411366383, 0.8655173432386342, -0.1894648588977903, 0.002747048177637283, 0.06602680261190931, -0.3997850531281571], [0.08441105864398017, -0.16697079098211168, 0.24278243220508042, -0.1702945938439671, 0.007885868250686299, 0.9878888944384203, 0.1486699405530026], [0.2519859769010445, 0.731789706914821, -0.22158663033889062, -0.07108165239162054, -1.6355937243435519, 0.6251946018024818, 0.26155726176340105], [-0.2141331977224251, 0.7450916937759127, -0.5484244726229189, -0.0921629585023903, 0.17129162103281492, -0.24851500575806876, -0.26459271012161834], [0.38837411953346906, -0.2052246652178993, -0.5121165365791324, -0.4752092338767133, -0.021262156452956878, 0.1058385361408683, 0.043291640363394224], [-0.2265674229544285, -0.38922125124518114, 0.6071393739697684, 0.9433694376294277, -0.2911324776290092, -0.054512041462681134, 0.15129099661516074], [-0.23449078394010878, 0.2003657266008178, -0.3007835558590703, 0.5250480463912525, -0.25665570903042834, 0.15653113778231603, -0.35874623464294886], [-0.28462394337167707, 0.0051219329531302085, -0.5093038764686172, -0.04369914859034073, 0.8468647891028404, 0.10647608703449639, -0.35621080565677304], [0.3834675183789362, -0.3189528459056767, 0.12267754500802779, 0.31485029138886605, 0.2595975478766959, -0.02595324236914719, -0.7492484214810912], [-0.30231710320690425, -0.3836243648732472, -0.7052299630021978, 0.03019424556591619, 0.5935668985157785, 0.13701455982968497, 0.11936252229326927], [-0.22740521747932996, -0.08512500787539003, 0.7501462629198145, -0.05610667854779302, 0.20221490781824145, -1.2068655109809006, 0.1373826843527662], [-0.1054425810073136, 0.5133764812274042, -0.5472961624807416, 0.15098539950784998, -0.2935984204854265, -0.19067851640435543, 0.28462435188307955], [-0.35122805363152815, -0.5141601015429256, 0.765935126920621, -0.5187539675440103, 0.3774263135304773, 0.3050574044896226, 0.07002299056905378], [0.10198416880672814, -0.07730727089458167, 0.053636705798647676, -0.769856579190654, 0.08651192616979969, -1.1250632759569819, 0.2600137434821403], [0.4075568301249815, -0.4402671899962247, 0.2400020003057698, -0.2577520363751092, 0.04294009801603417, 0.08765130712771398, 0.007751098218229859]], "intercept": [-0.5769282415855972, -0.8387919346315089, -39.75173803535243, 0.12470062183662882, -0.47892723120619674, 0.9550427236467836, -26.564932260173386, 0.037563135133620376, 0.10707521127819368, 3.385725850348309, 4.509534315056756, 28.51011784285469, 1.231754300137384, 43.17017937257266, -1.487624881873966, 0.018700383157761995, 0.16380611591351196, -9.99719714605771, -4.851198710087876, 0.6150902811364105, 1.6003718385170091, 0.11767644937257686], "n_features": 7};
+
+// feature order matches training: nitrogen, phosphorous, potassium, temperature, humidity, ph, rainfall
+function predictCrop(features) {
+  const {classes, coef, intercept} = MODEL;
+  const scores = classes.map((_, i) => {
+    let s = intercept[i];
+    for (let j = 0; j < features.length; j++) {
+      s += coef[i][j] * features[j];
+    }
+    return s;
+  });
+  // softmax not needed for argmax, but compute for completeness
+  let maxIdx = 0;
+  for (let i = 1; i < scores.length; i++) {
+    if (scores[i] > scores[maxIdx]) maxIdx = i;
+  }
+  return classes[maxIdx];
+}
+
+// ---- Navigation ----
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(a => {
+    if (a.dataset.page === name) a.classList.add('active'); else a.classList.remove('active');
+  });
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.nav-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    showPage(btn.dataset.page);
+  });
+});
+
+showPage('home');
+
+// ---- Prediction form ----
+document.getElementById('predict-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const ids = ['nitrogen','phosphorous','potassium','temperature','humidity','ph','rainfall'];
+  const values = ids.map(id => parseFloat(document.getElementById(id).value));
+  if (values.some(v => isNaN(v))) return;
+  const crop = predictCrop(values);
+  document.getElementById('result-crop').textContent = crop;
+  document.getElementById('result-banner').style.display = 'flex';
+  document.getElementById('result-banner').scrollIntoView({behavior:'smooth', block:'nearest'});
+});
+</script>
+
+</body>
+</html>
